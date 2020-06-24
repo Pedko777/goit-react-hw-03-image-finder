@@ -34,6 +34,7 @@ export default class SearchBar extends Component {
             <span className={SearchFormButtonLabel}>Search</span>
           </button>
           <input
+            required
             className={SearchFormInput}
             value={this.state.inputValue}
             onChange={this.handleChange}

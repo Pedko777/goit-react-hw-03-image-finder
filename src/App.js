@@ -26,12 +26,12 @@ export default class App extends Component {
     });
   };
 
-  componentWillMount() {
-    imgApi
-      .fetchImagesWithQuery()
-      .then(data => console.log(data))
-      .catch(error => {});
-  }
+  // componentWillMount() {
+  //   imgApi
+  //     .fetchImagesWithQuery()
+  //     .then(data => console.log(data))
+  //     .catch(error => {});
+  // }
 
   componentDidUpdate(prevProps, prevState) {
     const prevQuery = prevState.searchQuery;
@@ -97,10 +97,10 @@ export default class App extends Component {
             }}
           >
             <Loader
-              type="Audio"
+              type="ThreeDots"
               color="#00BFFF"
-              height={100}
-              width={100}
+              height={120}
+              width={120}
               timeout={3000}
             />
           </div>
