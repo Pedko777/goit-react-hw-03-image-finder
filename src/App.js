@@ -3,12 +3,18 @@ import imgApi from './services/imgApi';
 import styles from './App.css';
 import SearchBar from './components/SearchBar/SearchBar';
 import ImageGallery from './components/ImageGallery/ImageGallery';
+import Button from './components/Button/Button';
+import Loader from 'react-loader-spinner';
+import Modal from './components/Modal/Modal';
+
 
 export default class App extends Component {
   state = {
     searchQuery: '',
     page: 1,
     results: [],
+    loading: false,
+    firstFetch: true,
   };
 
   handleSearchbarSubmit = query => {
@@ -16,7 +22,7 @@ export default class App extends Component {
       searchQuery: query,
       results: [],
       page: 1,
-      loading: false,
+      firstFetch: true,
     });
   };
 
@@ -41,20 +47,67 @@ export default class App extends Component {
       loading: true,
     });
 
-    imgApi.fetchImagesWithQuery(searchQuery, page).then(images => {
-      this.setState(prevState => ({
-        results: [...prevState.results, ...images],
-        page: prevState.page + 1,
-      }));
-    });
+    imgApi
+      .fetchImagesWithQuery(searchQuery, page)
+      .then(images => {
+        this.setState(prevState => ({
+          results: [...prevState.results, ...images],
+          page: prevState.page + 1,
+        }));
+        if (!this.state.firstFetch) {
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth',
+          });
+        }
+      })
+      .catch(error => console.log(error))
+      .finally(() => {
+        this.setState({
+          loading: false,
+          firstFetch: false,
+        });
+      });
+  };
+
+  openModal = imageUrl => {
+    this.setState({ modalImage: imageUrl });
+  };
+
+  closeModal = e => {
+    this.setState({ modalImage: null });
   };
 
   render() {
-    const { results } = this.state;
+    const { results, loading, modalImage } = this.state;
     return (
       <div className={styles.App}>
         <SearchBar onSubmit={this.handleSearchbarSubmit} />
-        <ImageGallery images={results} />
+        <ImageGallery images={results} onClick={this.openModal}/>
+        {modalImage && (
+          <Modal largeImage={modalImage} onClose={this.closeModal}/>
+        )}
+        {loading && (
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <Loader
+              type="Audio"
+              color="#00BFFF"
+              height={100}
+              width={100}
+              timeout={3000}
+            />
+          </div>
+        )}
+        {results.length > 0 && !loading && (
+          <Button onClick={this.fetchImages} />
+        )}
       </div>
     );
   }
